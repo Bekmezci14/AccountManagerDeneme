@@ -2,6 +2,7 @@ using System;
 using AccountManager.Api.Data;
 using AccountManager.Api.Dtos;
 using AccountManager.Api.Entities;
+using AccountManager.Api.Mapping;
 
 namespace AccountManager.Api.Endpoints;
 
@@ -36,29 +37,13 @@ public static class AccountsEndpoints
                 return Results.BadRequest("Name is required.");
             }
 
-            Account account = new()
-            {
-                UserName = newaccount.UserName,
-                Password = newaccount.Password,
-                Email = newaccount.Email,
-                IpAddress = newaccount.IpAddress,
-                CategoryId = newaccount.CategoryId,
-                Category = dbContext.Categories.Find(newaccount.CategoryId)
-            };
+            Account account = newaccount.ToEntity();
+            account.Category = dbContext.Categories.Find(newaccount.CategoryId);
             
             dbContext.Accounts.Add(account);
             dbContext.SaveChanges();
 
-            AccountDto accountDto = new(
-                account.Id,
-                account.UserName,
-                account.Password,
-                account.Email,
-                account.IpAddress,
-                account.Category!.Name
-            );
-
-            return Results.CreatedAtRoute("GetAccount", new { id = account.Id }, accountDto);
+            return Results.CreatedAtRoute("GetAccount", new { id = account.Id }, account.ToDto());
         });
 
 

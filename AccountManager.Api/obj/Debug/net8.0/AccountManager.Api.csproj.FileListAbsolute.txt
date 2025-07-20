@@ -124,3 +124,4 @@ C:\Users\Arkın\source\repos\AccountManagerDeneme\AccountManager.Api\bin\Debug\n
 C:\Users\Arkın\source\repos\AccountManagerDeneme\AccountManager.Api\obj\Debug\net8.0\AccountManager.Api.csproj.AssemblyReference.cache
 C:\Users\Arkın\source\repos\AccountManagerDeneme\AccountManager.Api\obj\Debug\net8.0\AccountManager.Api.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\Arkın\source\repos\AccountManagerDeneme\AccountManager.Api\obj\Debug\net8.0\AccountM.DEC8EAD3.Up2Date
+C:\Users\Arkın\source\repos\AccountManagerDeneme\AccountManager.Api\obj\Debug\net8.0\AccountManager.Api.sourcelink.json
