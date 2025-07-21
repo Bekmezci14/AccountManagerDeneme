@@ -9,7 +9,8 @@ builder.Services.AddSqlite<AccountManagerContext>(ConnString);
 var app = builder.Build();
 
 app.MapAccountEndpoints();
+app.MapCategoriesEndpoints();
 
-app.MigrateDb();
+await app.MigrateDbAsync();
 
 app.Run();

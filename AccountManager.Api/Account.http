@@ -1,17 +1,17 @@
 Get http://localhost:5029/accounts
 ###
 
-Get http://localhost:5029/accounts/2
+Get http://localhost:5029/accounts/1
 
 ###
 Post http://localhost:5029/accounts
 Content-Type: application/json
 
 {
-    "UserName": "BurakOzsubasi",
-    "Password": "password",
-    "Email":"burak@example.com",
-    "IpAddress":"111.222.111",
+    "UserName": "AtakanTevfik",
+    "Password": "123456",
+    "Email":"atakan@example.com",
+    "IpAddress":"111.222.222",
     "CategoryId": 1
 }
 
@@ -23,9 +23,10 @@ Content-Type: application/json
     "UserName": "BurakOzsubasi",
     "Password": "password",
     "Email":"burak@example.com",
-    "IpAddress":"111.222.111"
+    "IpAddress":"111.222.123",
+    "CategoryId": 1
 }
 
 ###
 
-DELETE http://localhost:5029/accounts/1
+DELETE http://localhost:5029/accounts/2

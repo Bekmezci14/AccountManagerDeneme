@@ -3,34 +3,33 @@ using AccountManager.Api.Data;
 using AccountManager.Api.Dtos;
 using AccountManager.Api.Entities;
 using AccountManager.Api.Mapping;
+using Microsoft.EntityFrameworkCore;
 
 namespace AccountManager.Api.Endpoints;
 
 public static class AccountsEndpoints
 {
-    private static readonly List<AccountDto> accounts = [new AccountDto(1, "ArkBek14", "Bekmezci14", "arkbek14@gmail.com", "111.111.111", "Default"),
-                            new AccountDto(2, "AtakanTevfik", "12345678", "atakant@gmail.com", "111.111.112", "Default")];
-
-
     public static RouteGroupBuilder MapAccountEndpoints(this WebApplication app)
     {
 
         var group = app.MapGroup("accounts").WithParameterValidation();
 
         //GET /accounts
-        group.MapGet("/", () => accounts);
+        group.MapGet("/", async (AccountManagerContext dbContext) =>
+            await dbContext.Accounts.Include(account => account.Category).Select(account => account.ToSummaryDto()).AsNoTracking().ToListAsync());
+            // this line retrieves all accounts and includes their categories, mapping them to summary DTOs.
 
 
         //GET /accounts/id
-        group.MapGet("/{id}", (int id) =>
+        group.MapGet("/{id}", async (int id, AccountManagerContext dbContext) =>
             {
-                var account = accounts.Find(account => account.Id == id);
-                return account is null ? Results.NotFound() : Results.Ok(account);
+                Account? account = await dbContext.Accounts.FindAsync(id);
+                return account is null ? Results.NotFound() : Results.Ok(account.ToDetailsDto());
             }).WithName("GetAccount");
 
 
         //Post /accounts
-        group.MapPost("/", (CreateAccountDto newaccount, AccountManagerContext dbContext) =>
+        group.MapPost("/", async (CreateAccountDto newaccount, AccountManagerContext dbContext) =>
         {
             if (string.IsNullOrEmpty(newaccount.UserName))
             {
@@ -38,40 +37,41 @@ public static class AccountsEndpoints
             }
 
             Account account = newaccount.ToEntity();
-            account.Category = dbContext.Categories.Find(newaccount.CategoryId);
+            //account.Category = dbContext.Categories.Find(newaccount.CategoryId);
             
             dbContext.Accounts.Add(account);
-            dbContext.SaveChanges();
+            await dbContext.SaveChangesAsync();
 
-            return Results.CreatedAtRoute("GetAccount", new { id = account.Id }, account.ToDto());
+            return Results.CreatedAtRoute("GetAccount", new { id = account.Id }, account.ToDetailsDto());
         });
 
 
         //Put /accounts/id
-        group.MapPut("/{id}", (int id, UpdateAccountDto updatedaccount, AccountManagerContext dbContext) =>
+        group.MapPut("/{id}", async (int id, UpdateAccountDto updatedaccount, AccountManagerContext dbContext) =>
         {
-            var index = accounts.FindIndex(account => account.Id == id);
+            Account? existingAccount = await dbContext.Accounts.FindAsync(id);
 
-            if (index == -1)
+            if (existingAccount is null)
             {
                 return Results.NotFound();
             }
 
-            accounts[index] = new AccountDto(
-                id,
-                updatedaccount.UserName,
-                updatedaccount.Email,
-                updatedaccount.Password,
-                updatedaccount.IpAddress,
-                dbContext.Categories.Find(updatedaccount.CategoryId)!.Name
-            );
+            dbContext.Entry(existingAccount).CurrentValues.SetValues(updatedaccount);
+            await dbContext.SaveChangesAsync();
+            
             return Results.NoContent();
         });
 
         //Delete /accounts/id
-        group.MapDelete("/{id}", (int id) =>
+        group.MapDelete("/{id}", async (int id, AccountManagerContext dbContext) =>
         {
-            accounts.RemoveAll(account => account.Id == id);
+            var deletedCount = await dbContext.Accounts.Where(account => account.Id == id).ExecuteDeleteAsync();
+            // batch delete 
+
+            if (deletedCount == 0)
+            {
+                return Results.NotFound();
+            }
 
             return Results.NoContent();
         });

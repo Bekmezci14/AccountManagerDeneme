@@ -1,10 +1,12 @@
+using System;
+
 namespace AccountManager.Api.Dtos;
 
-public record class AccountDto(
+public record class AccountDetailDto(
     int Id,
     string UserName,
     string Password,
     string Email,
     string IpAddress,
-    string Category
+    int CategoryId
     );
